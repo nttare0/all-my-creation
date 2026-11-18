@@ -6,7 +6,7 @@ The homepage opens directly on the directory. Search by name or production domai
 
 ## Run locally
 
-Requires **Node.js 22.13+** with `node:sqlite` and npm. An experimental SQLite warning on Node 22 is expected.
+Use **Node.js 26.x** with npm, matching the production runtime. `engines.node` allows minor and patch updates within 26 but not an automatic major upgrade.
 
 ```sh
 npm ci
@@ -24,6 +24,8 @@ The server binds to `0.0.0.0` on `PORT` (default 3000). All public and private r
 ## Deploy to Vercel with hosted SQLite
 
 Use the **[`indexroom` project in `nttare`](https://vercel.com/nttare/indexroom)**, linked to this repo. `vercel.json` selects the Other preset, `npm ci --include=dev`, `npm run build`, and **`dist`** for static assets. A Node function handles pages and standard HTML form submissions. Do not deploy `dist` on its own: it is not a standalone website.
+
+The build leaves npm’s cache at its default (or the supported `NPM_CONFIG_CACHE` setting). The empty build-only `*_CACHE_DIR` settings clear the obsolete npm option inherited from the builder; they do not turn off caching or warnings. Tailwind uses the prebuilt `@parcel/watcher` package for the build platform, so `allowScripts` explicitly denies its optional source-build script. No Astryx packages or script approvals are needed.
 
 1. Create or choose a dedicated **Turso Cloud libSQL** database (the SQLite-compatible libSQL engine). In the Indexroom project's **Settings → Environment Variables**, set `TURSO_DATABASE_URL` to its `libsql://…` or `https://…` database origin and `TURSO_AUTH_TOKEN` to a **database-scoped read/write** token with schema access. Select **Production**; mark the token sensitive. No organization-wide API token is needed. Never paste a token in chat, add it to Git, or prefix these variables with a public/client prefix.
 2. Deploy the commit containing this app as **Production**. For an existing deployment, **redeploy the same source after saving the variables**. The Vercel build applies the schema and catalog in one transaction; private records are not deleted or reseeded. Give previews a separate database or leave them catalog-only. Do not give preview builds production credentials.

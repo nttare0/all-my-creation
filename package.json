@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.13.0"
+    "node": "26.x"
   },
   "scripts": {
     "start": "node server/main.mjs",
@@ -28,5 +28,8 @@
   "devDependencies": {
     "@tailwindcss/cli": "4.3.5",
     "tailwindcss": "4.3.5"
+  },
+  "allowScripts": {
+    "@parcel/watcher": false
   }
 }

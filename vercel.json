@@ -4,7 +4,13 @@
   "installCommand": "npm ci --include=dev",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "build": { "env": { "NODEJS_HELPERS": "0" } },
+  "build": {
+    "env": {
+      "NODEJS_HELPERS": "0",
+      "NPM_CONFIG_CACHE_DIR": "",
+      "npm_config_cache_dir": ""
+    }
+  },
   "functions": { "api/index.mjs": { "includeFiles": "catalog/projects.sql" } },
   "routes": [
     { "handle": "filesystem" },

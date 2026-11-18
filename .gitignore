@@ -1,0 +1,13 @@
+node_modules/
+.agents/skills/
+/data/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+.env
+.env.*
+!.env.example
+
+.arena/
+/dist/
+/.vercel/

@@ -1,6 +1,7 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { layout } from './layout.mjs';
-import { editorView, legalView, libraryPath, libraryView, messageView, portfolioView, readFilters, removeView } from './views.mjs';
+import { editorView, legalView, libraryPath, libraryView, messageView, readFilters, removeView } from './views.mjs';
+import { directoryFilters, portfolioView } from './portfolio.mjs';
 import { InputError, validateCreation } from './store.mjs';
 
 const PUBLIC_PAGES = new Map([
@@ -81,7 +82,8 @@ export function createApp(store, { publicOrigin, contact = '', production = fals
       if (reading && route === '/') {
         // Preserve old library filter URLs without mixing public and private results.
         if (['view', 'collection', 'q', 'sort', 'page'].some(key => path.searchParams.has(key))) return redirect(libraryPath(readFilters(path.searchParams)));
-        return html(200, ...PUBLIC_PAGES.get('/'), portfolioView(await store.portfolio(), store.writable), { nav: 'portfolio', noindex: false });
+        const filters = directoryFilters(path.searchParams);
+        return html(200, ...PUBLIC_PAGES.get('/'), portfolioView(await store.portfolio(), store.writable, filters), { nav: 'portfolio', noindex: Boolean(path.search) });
       }
       if (reading && (route === '/privacy' || route === '/terms')) return html(200, ...PUBLIC_PAGES.get(route), legalView(route.slice(1), contact), { path: route, noindex: false });
       if (!reading && req.method !== 'POST') { res.setHeader('Allow', 'GET, HEAD, POST'); throw problem(405, 'This method is not available.'); }
@@ -113,9 +115,7 @@ export function createApp(store, { publicOrigin, contact = '', production = fals
             : f.starred ? ['Starred creations', 'Browse the creations you have starred in this browser’s private library. Search by title or URL to find a favorite.']
             : ['Creation library', 'Save, search and organize links in your private browser-keyed creation archive.'];
           const data = await store.library(owner, f);
-          return html(200, title, description, libraryView(ctx, f, data, saved && record), {
-            nav: 'library', path: '/library',
-          });
+          return html(200, title, description, libraryView(ctx, f, data, saved && record), { nav: 'library', path: '/library' });
         }
         if (route === '/new' || item?.[2] === 'edit') {
           const description = item ? 'Update a saved bookmark’s title, URL or collection in your private Indexroom library.' : 'Enter a creation URL, give it an optional title and file it in a collection in your personal archive.';
@@ -125,7 +125,7 @@ export function createApp(store, { publicOrigin, contact = '', production = fals
             if (!project) return missing();
             prefill = { url: project.url, title: project.name, collection: 'web' };
           }
-          return html(200, item ? 'Edit creation' : 'New creation', description, editorView(ctx, record || prefill), { nav: 'library', path: route });
+          return html(200, item ? 'Edit creation' : 'New creation', description, editorView(ctx, record || prefill), { nav: item ? 'library' : 'new', path: route });
         }
         return html(200, 'Remove creation', 'Confirm removal of this saved link from your personal archive.', removeView(ctx, record));
       }

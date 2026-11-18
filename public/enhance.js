@@ -24,9 +24,15 @@ window.addEventListener('pageshow', () => {
     }
   }
 });
-for (const input of document.querySelectorAll('input[aria-required="true"]')) input.required = true;
-for (const [name, limit] of [['url', 2048], ['title', 140], ['q', 160]]) {
-  const input = document.querySelector(`input[name="${name}"]`);
-  if (input) input.maxLength = limit;
+const find = document.querySelector('#find-project');
+if (find) {
+  const hint = document.querySelector('.search-key');
+  hint.textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
+  hint.hidden = false;
+  document.addEventListener('keydown', event => {
+    if (!event.isComposing && (event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === 'k') {
+      event.preventDefault(); find.focus(); find.select();
+    }
+  });
 }
-document.querySelector('input[aria-invalid="true"]')?.focus();
+document.querySelector('[aria-invalid="true"]')?.focus();

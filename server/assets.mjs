@@ -2,11 +2,8 @@ import { readFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 
 const local = f => new URL(`../public/${f}`, import.meta.url);
-const vendor = name => new URL(import.meta.resolve(name));
 export const assetPaths = [
-  ['/assets/reset.css', vendor('@astryxdesign/core/reset.css'), 'text/css'],
-  ['/assets/astryx.css', vendor('@astryxdesign/core/astryx.css'), 'text/css'],
-  ['/assets/theme.css', vendor('@astryxdesign/theme-neutral/theme.css'), 'text/css'],
+  ['/assets/shadcn.css', new URL('../build/shadcn.css', import.meta.url), 'text/css'],
   ['/assets/site.css', local('site.css'), 'text/css'], ['/assets/enhance.js', local('enhance.js'), 'text/javascript'],
   ['/icon.svg', local('icon.svg'), 'image/svg+xml'], ['/favicon.ico', local('favicon.ico'), 'image/x-icon'],
   ['/apple-touch-icon.png', local('apple-touch-icon.png'), 'image/png'], ['/share.png', local('share.png'), 'image/png'],

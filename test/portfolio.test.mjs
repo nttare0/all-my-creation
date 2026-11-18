@@ -48,3 +48,34 @@ test('public-only deployment has a portfolio but cannot issue private forms or a
     assert.doesNotMatch(await res.text(), /name="csrf"/);
   }
 });
+
+test('directory is the first heading, with public search, ordering and an alternate list', async t => {
+  const request = await site(t, openPublicCatalog());
+  const home = await (await request('/')).text();
+  assert.match(home, /<h1[^>]*>Project directory<\/h1>/);
+  assert.doesNotMatch(home, /NTTARE\s*\/\s*PUBLIC PORTFOLIO|Browse projects|A directory of my projects on Vercel|The project <em>index/);
+  assert.equal((home.match(/data-slot="card"/g) || []).length, 13);
+  const filtered = await request('/?find=zepvi&layout=list');
+  assert.equal(filtered.headers.get('set-cookie'), null);
+  const results = await filtered.text();
+  assert.match(results, /href="https:\/\/zepvi\.vercel\.app"/);
+  assert.doesNotMatch(results, /href="https:\/\/linknest-one-rosy\.vercel\.app"/);
+  assert.match(results, /data-layout="list"/);
+  const reverse = await (await request('/?order=desc')).text();
+  assert.ok(reverse.indexOf('href="https://v0-mirror-two.vercel.app"') < reverse.indexOf('href="https://zepvi.vercel.app"'));
+  assert.match(await (await request('/?find=missing-test-project')).text(), /No matching projects/);
+  assert.match(home, /<section id="projects"/, 'existing #projects bookmarks still target the directory');
+});
+
+test('navigation stays in the header and private filters stay in the library', async t => {
+  const request = await site(t, openStore(':memory:'));
+  for (const path of ['/', '/library']) {
+    const html = await (await request(path)).text();
+    assert.ok(!html.includes('<aside'), `${path} has no sidebar`);
+    const nav = html.match(/<header\b[^>]*><nav\b[^>]*aria-label="Main navigation"[^>]*>(.*?)<\/nav>/s)?.[1];
+    assert.ok(nav, `${path} has primary navigation in its header`);
+    for (const url of ['/', '/library', '/new']) assert.ok(nav.includes(`href="${url}"`));
+    assert.doesNotMatch(nav, /[?](?:collection|view)=/);
+    if (path === '/library') assert.match(html, /href="\/library\?view=starred#entries"/);
+  }
+});

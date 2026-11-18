@@ -1,13 +1,15 @@
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { assetPaths } from '../server/assets.mjs';
 import { openStore } from '../server/store.mjs';
 import { hostedStore } from '../server/turso.mjs';
 import { createApp } from '../server/app.mjs';
 
-// Keep the Vercel static output allowlisted. Never copy the repo or a DB into dist.
+// Rebuild the dedicated output so removed assets don't survive a cached deployment.
+const staticOutput = resolve(import.meta.dirname, '../dist');
+rmSync(staticOutput, { recursive: true, force: true });
 for (const [route, source] of assetPaths) {
-  const output = resolve('dist', '.' + route);
+  const output = resolve(staticOutput, '.' + route);
   mkdirSync(dirname(output), { recursive: true });
   copyFileSync(source, output);
 }

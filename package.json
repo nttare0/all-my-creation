@@ -9,19 +9,24 @@
   "scripts": {
     "start": "node server/main.mjs",
     "dev": "node --watch server/main.mjs",
-    "build": "node --check server/main.mjs && node --check public/enhance.js && node --check api/index.mjs && node scripts/build.mjs",
+    "build": "npm run styles && node --check server/main.mjs && node --check public/enhance.js && node --check api/index.mjs && node scripts/build.mjs",
     "test": "node --test",
-    "astryx": "astryx",
-    "test:libsql": "node scripts/check-libsql.mjs"
+    "test:libsql": "node scripts/check-libsql.mjs",
+    "styles": "tailwindcss -i styles/ui.css -o build/shadcn.css --minify",
+    "prestart": "npm run styles",
+    "predev": "npm run styles",
+    "pretest": "npm run styles"
   },
   "dependencies": {
-    "@astryxdesign/core": "0.7.16",
-    "@astryxdesign/theme-neutral": "0.7.16",
-    "@stylexjs/stylex": "0.19.2",
+    "class-variance-authority": "0.7.1",
+    "cn": "0.5.2",
+    "lucide-react": "1.75.0",
+    "radix-ui": "1.8.1",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@astryxdesign/cli": "0.7.16"
+    "@tailwindcss/cli": "4.3.5",
+    "tailwindcss": "4.3.5"
   }
 }
